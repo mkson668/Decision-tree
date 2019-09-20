@@ -51,7 +51,7 @@ class DecisionTree:
             # get all unique column values at current colIndex
             uniqueVals = set([row[colIndex] for row in rows])
             for uniqueVal in uniqueVals:
-                quest = Question.Question(colIndex, uniqueVal)
+                quest = Question.Question(colIndex, uniqueVal, self.header)
                 trueRows, falseRows = self.partition(rows, quest)
                 if len(trueRows) == 0 or len(falseRows) == 0:
                     continue
@@ -95,6 +95,13 @@ class DecisionTree:
             return self.classify(row, node.trueBranch)
         else:
             return self.classify(row, node.falseBranch)
+
+dTree = DecisionTree("heart.csv")
+# should actually split this into training validation and test set
+# for now just make sure it works properly
+trainedTreeRoot = dTree.constructTree(dTree.X)
+mat = dTree.X
+label = dTree.classify(mat[0], trainedTreeRoot)
 
 
 
