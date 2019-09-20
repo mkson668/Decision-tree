@@ -1,6 +1,6 @@
 import csv
 import numpy as np
-import Question
+import Question as qst
 import Leaf as lf
 import DecisionNode as dn
 
@@ -41,7 +41,7 @@ class DecisionTree:
     def findBestSplit(self, rows):
         bestInfoGain = 0
         bestQuestion = None
-        # currentGiniUncertainty - weightedAvgGiniUncertainty = infogain
+        # parentCurrentGiniUncertainty - childrenWeightedAvgGiniUncertainty = infogain
         currentGiniUncertainty = self.giniImpurity(rows)
         # 0,1,2,3...13
         for colIndex in range(self.columns):
@@ -51,8 +51,9 @@ class DecisionTree:
             # get all unique column values at current colIndex
             uniqueVals = set([row[colIndex] for row in rows])
             for uniqueVal in uniqueVals:
-                quest = Question.Question(colIndex, uniqueVal, self.header)
+                quest = qst.Question(colIndex, uniqueVal, self.header)
                 trueRows, falseRows = self.partition(rows, quest)
+                # if this occurs then the column value we used to split on was probably shit or it has reached a leaf node
                 if len(trueRows) == 0 or len(falseRows) == 0:
                     continue
                 trueGini = self.giniImpurity(trueRows)
@@ -89,7 +90,8 @@ class DecisionTree:
         return dn.DecisionNode(bestQuestion, trueChild, falseChild)
 
     def classify(self, row, node):
-        if isinstance(node, lf):
+        print(isinstance(node, dn.DecisionNode))
+        if isinstance(node, lf.Leaf):
             return node.prediction
         if node.question.askQuestion(row):
             return self.classify(row, node.trueBranch)
@@ -102,6 +104,10 @@ dTree = DecisionTree("heart.csv")
 trainedTreeRoot = dTree.constructTree(dTree.X)
 mat = dTree.X
 label = dTree.classify(mat[0], trainedTreeRoot)
+if (label == 1):
+    print("male")
+else:
+    print("female")
 
 
 

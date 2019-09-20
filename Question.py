@@ -1,13 +1,12 @@
-import DecisionTree
 import numpy as np
 
 class Question:
-    def __init__(self, col, val, header):
+    def __init__(self, col, val, head):
         # index in row
         self.attribute = col
         # save the reference value we are comparing against
         self.value = val
-        self.header = header
+        self.header = head
     
     def askQuestion(self, row):
         # get the value of at index

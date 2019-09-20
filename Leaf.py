@@ -16,5 +16,5 @@ class Leaf:
             if allClasses[c] > count:
                 count = allClasses[c]
                 colIndex = c
-        self.predition = colIndex
+        self.prediction = colIndex
 
