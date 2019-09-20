@@ -1,6 +1,8 @@
 import csv
 import numpy as np
 import Question
+import Leaf as lf
+import DecisionNode as dn
 
 class DecisionTree:
 
@@ -19,7 +21,7 @@ class DecisionTree:
 
     # gini impurity in a nutshell is the probaility of predicting the wrong class in subset vector y (random chance)
     def giniImpurity(self, X):
-        # since we are predicting whether someone is male or female there are only 2 classes
+        # since we are predicting whether someone is male or female there are only 2 classes use a simple dictonary
         allClasses = {}
         # tally up counts of female and male (male = 1, female = 0)
         for row in X:
@@ -29,10 +31,10 @@ class DecisionTree:
                 allClasses[classVal] = 1
             else:
                 allClasses[classVal] += 1
-        # wikipedia gini impurity formula
+        # wikipedia gini impurity formula 
         impurity = 1
         for c in allClasses:
-            probOfC = allClasses[c]/self.rows
+            probOfC = allClasses[c]/len(X)
             impurity -= probOfC**2
         return impurity
     
@@ -43,6 +45,9 @@ class DecisionTree:
         currentGiniUncertainty = self.giniImpurity(rows)
         # 0,1,2,3...13
         for colIndex in range(self.columns):
+            # this is the label vector dont want to split on this or we get no uncertainty
+            if colIndex == 1:
+                continue
             # get all unique column values at current colIndex
             uniqueVals = set([row[colIndex] for row in rows])
             for uniqueVal in uniqueVals:
@@ -52,7 +57,10 @@ class DecisionTree:
                     continue
                 trueGini = self.giniImpurity(trueRows)
                 falseGini = self.giniImpurity(falseRows)
-                infoGain = currentGiniUncertainty - (trueGini + falseGini)
+                trueWeightedRatio = len(trueRows)/(len(trueRows) + len(falseRows))
+                falseWeightedRation = 1 - trueWeightedRatio
+                # currentGiniUncertainty - weightedAvgGiniUncertainty = infogain
+                infoGain = currentGiniUncertainty - (trueWeightedRatio * trueGini + falseWeightedRation * falseGini)
                 if infoGain > bestInfoGain:
                     bestInfoGain = infoGain
                     bestQuestion = quest
@@ -68,8 +76,34 @@ class DecisionTree:
                 false.append(row)
         return true, false
 
-dT = DecisionTree("heart.csv")
-gini = dT.giniImpurity(dT.X)
-print("value is " + str(gini))
+    def constructTree(self, rows):
+        # for this set of example find the best split 
+        bestInfoGain, bestQuestion = self.findBestSplit(rows)
+        # this means that only one class remains or 
+        if bestInfoGain == 0:
+            return lf.Leaf(rows)
+        trueSplit, falseSplit = self.partition(rows, bestQuestion)
+        # append true and false childnodes
+        trueChild = self.constructTree(trueSplit)
+        falseChild = self.constructTree(falseSplit)
+        return dn.DecisionNode(bestQuestion, trueChild, falseChild)
+
+    def classify(self, row, node):
+        if isinstance(node, lf):
+            return node.prediction
+        if node.question.askQuestion(row):
+            return self.classify(row, node.trueBranch)
+        else:
+            return self.classify(row, node.falseBranch)
+
+
+
+        
+
+
+        
+
+
+
 
 
