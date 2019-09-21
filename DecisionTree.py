@@ -3,7 +3,7 @@ import numpy as np
 import Question as qst
 import Leaf as lf
 import DecisionNode as dn
-
+# Song Rachel
 class DecisionTree:
 
     # read csv file and store dimensions
