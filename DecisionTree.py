@@ -13,11 +13,15 @@ class DecisionTree:
         self.header = np.genfromtxt(file,dtype=str,delimiter=",", autostrip=True, max_rows=1)
         # header remove
         self.header[0] = "age"
-        self.X = mat
+        trainSplitIndex = int(len(mat) * 0.8)
+        validationSplitIndex = int(len(mat) * 0.9)
+        self.train = mat[0:trainSplitIndex]
+        self.validation = mat[trainSplitIndex: validationSplitIndex]
+        self.test = mat[validationSplitIndex:len(mat) - 1]
         dims = mat.shape
         self.rows = dims[0]
         self.columns = dims[1]
-        # need to split for training and validation on self.X
+        # need to split for training and validation on self.train
 
     # gini impurity in a nutshell is the probaility of predicting the wrong class in subset vector y (random chance)
     def giniImpurity(self, X):
@@ -101,8 +105,8 @@ class DecisionTree:
 dTree = DecisionTree("heart.csv")
 # should actually split this into training validation and test set
 # for now just make sure it works properly
-trainedTreeRoot = dTree.constructTree(dTree.X)
-mat = dTree.X
+trainedTreeRoot = dTree.constructTree(dTree.train)
+mat = dTree.train
 label = dTree.classify(mat[0], trainedTreeRoot)
 if (label == 1):
     print("male")
